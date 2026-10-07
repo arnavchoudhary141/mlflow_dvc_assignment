@@ -28,9 +28,19 @@ with mlflow.start_run():
     # model.fit(X_train, y_train)
 
     # Log a dummy metric
+       # Log a dummy metric
     mlflow.log_metric("accuracy", 0.95)
 
     # Log the model itself
-    mlflow.sklearn.log_model(model, "random_forest_model")
+    mlflow.sklearn.log_model(model, name="random_forest_model")
 
-    print("Experiment tracked in MLflow!")
+    # Create and log an artifact file
+    with open("mlflow_artifact.txt", "w") as f:
+        f.write("MLflow + DVC pipeline executed successfully.\n")
+        f.write(f"Dataset version: {dvc_version}\n")
+        f.write(f"Accuracy: 0.95\n")
+        f.write(f"Number of estimators: {n_estimators}\n")
+
+    mlflow.log_artifact("mlflow_artifact.txt")
+
+print("Experiment tracked in MLflow!")

@@ -1,0 +1,54 @@
+name: MLflow + DVC CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install dvc
+
+      - name: Check DVC
+        run: |
+          dvc --version
+          dvc status
+
+      - name: Run MLflow training
+        run: |
+          python train.py
+
+      - name: Verify MLflow artifact
+        run: |
+          test -f mlflow_artifact.txt
+          echo "MLflow artifact created successfully"
+
+      - name: Upload MLflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-artifacts
+          path: |
+            mlflow_artifact.txt
+            mlruns/
